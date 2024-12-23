@@ -4,15 +4,26 @@ namespace rpgSurvival.display
     class DisplayMenu
     {
         public int selectedIndex = 0;
-        public int showMenu(string nadpis, string[] options)
+        public int showMenu(string nadpis, string[] options, bool isNadpis = false, string description = "")
         {
             Console.CursorVisible = false;
+
+            // Automaticky nastavíme vybraný index na 0, pokud je jen jedna možnost
+            if (options.Length == 1)
+            {
+                selectedIndex = 0;
+            }
 
             while (true)
             {
                 Console.Clear();
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.BackgroundColor = ConsoleColor.DarkRed;
+                if (isNadpis) {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.BackgroundColor = ConsoleColor.DarkRed;
+                } else {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.BackgroundColor = ConsoleColor.Black;
+                }
 
                 string paddedNadpis = $" {nadpis} ";
                 int windowWidth = Console.WindowWidth;
@@ -37,6 +48,13 @@ namespace rpgSurvival.display
                     Console.ResetColor();
                 }
 
+                if (description != "") {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine();
+                    Console.WriteLine(CenterText(description));
+                    Console.ResetColor();
+                }
+
                 ConsoleKey key = Console.ReadKey(true).Key;
 
                 switch (key)
@@ -48,23 +66,23 @@ namespace rpgSurvival.display
                         selectedIndex = (selectedIndex == options.Length - 1) ? 0 : selectedIndex + 1;
                         break;
                     case ConsoleKey.Enter:
-                        if (options[selectedIndex] == "Exit")
-                        {
-                            Console.WriteLine(CenterText("Exiting..."));
-                            return 0;
-                        }
                         return selectedIndex;
                 }
             }
         }
 
-        public void printText(string nadpis, string text, bool clear = true)
+        public void printText(string nadpis, string text, bool clear = true, bool isNadpis = false)
         {
             if (clear){
                 Console.Clear();
             }
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.DarkRed;
+            if (isNadpis) {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.BackgroundColor = ConsoleColor.DarkRed;
+                } else {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.BackgroundColor = ConsoleColor.Black;
+                }
 
             if (nadpis != "") {
                 string paddedNadpis = $" {nadpis} ";

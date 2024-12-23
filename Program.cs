@@ -5,7 +5,7 @@ using rpgSurvival.display;
 
 namespace rpgSurvival
 {
-    class player {
+    public class player {
         public InventoryManager invMng = new InventoryManager();
         
         public string name;
@@ -24,11 +24,12 @@ namespace rpgSurvival
             SaveManager saveMng = new SaveManager();
             BossList bossList = new BossList();
             FightList fightList = new FightList();
-            DisplayMenu displayMenu = new DisplayMenu();    
+            DisplayMenu displayMenu = new DisplayMenu();
+            fightSystem fightSystem = new fightSystem();    
 
-            void loadMenu() {
+            void loadSetUpMenu() {
                 //First menu, printed on start and on exit
-                displayMenu.showMenu("Hlavní menu", new string[] { "Nová hra", "Načíst hru", "Uložit hru", "Konec" });
+                displayMenu.showMenu("Hlavní menu", new string[] { "Nová hra", "Načíst hru", "Uložit hru", "Konec" }, true, "cusky brosky");
                 string choice = displayMenu.selectedIndex.ToString();
                 switch(choice){
                     case "0":
@@ -53,9 +54,10 @@ namespace rpgSurvival
 
             //Game loop
             while (true) {
-                loadMenu();
+                loadSetUpMenu();
                 startUp();
                 displayMenu.printText("", "Hra začíná!", false);
+                fightSystem.fight(fightList.fights, 0, ref playerData, bossList);
                 break;
             }
 
@@ -70,27 +72,26 @@ namespace rpgSurvival
             void startUp() {
                 if(loadGame == false) {
                     //Load items in inventory
-                    playerData.invMng.AddWeapon("Jmelová dýka", 5); 
+                    playerData.invMng.AddWeapon("Jmelová dýka", 5, 1); 
                     playerData.invMng.AddWeapon("Meč z cukrovinky", 10);
                     playerData.invMng.AddWeapon("Slavnostní luk", 20);
                     playerData.invMng.AddWeapon("Louskáčkový palcát", 25);
                     playerData.invMng.AddWeapon("Sekera mrazivého obra", 35);
                     playerData.invMng.AddWeapon("Hůlka svaté hvězdy", 50);
-                    playerData.invMng.AddPotion("Léčivý lektvar", 8);
+                    playerData.invMng.AddPotion("Léčivý lektvar", 8, 2);
                     playerData.invMng.AddPotion("Lektvar vánoční pohody", 12);
                     playerData.invMng.AddPotion("Elixír vánočního ducha", 20);
                     playerData.invMng.AddPotion("Vaječný lektvar", 35);
-                    
-
-                    //Load bosses
-                    bossList.AddBoss("Vánoční skřítek", 1, 30);
-                    bossList.AddBoss("Vánoční skřet", 2, 70);
-                    bossList.AddBoss("Strážce vánočního města", 3, 120);
-                    bossList.AddBoss("Perníkový golem", 4, 175);
-                    bossList.AddBoss("Ledová královna", 5, 200);
-                    bossList.AddBoss("Krampus", 6, 250);
-                    bossList.AddBoss("Santa", 7, 300);
                 }
+                    
+                //Load bosses
+                bossList.AddBoss("Vánoční skřítek", 1, 30, 8);
+                bossList.AddBoss("Vánoční skřet", 2, 70, 10);
+                bossList.AddBoss("Strážce vánočního města", 3, 120, 20);
+                bossList.AddBoss("Perníkový golem", 4, 175, 25);
+                bossList.AddBoss("Ledová královna", 5, 200, 30);
+                bossList.AddBoss("Krampus", 6, 250, 40);
+                bossList.AddBoss("Santa", 7, 300, 50);
 
                 //Load fights
                 fightList.fights[0] = [1];
@@ -104,9 +105,10 @@ namespace rpgSurvival
                 fightList.fights[8] = [6];
                 fightList.fights[9] = [7];
 
+                if(loadGame == false) {
+                    saveMng.saveGame(playerData.name, playerData.health, playerData.coins, playerData.invMng.weapons, playerData.invMng.potions, playerData.fightDoneIds);
+                }
 
-                //Save game after startup
-                saveMng.saveGame(playerData.name, playerData.health, playerData.coins, playerData.invMng.weapons, playerData.invMng.potions, playerData.fightDoneIds);
             }
         }
     }

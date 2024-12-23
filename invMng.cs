@@ -6,14 +6,14 @@ namespace rpgSurvival.invMng
         public Dictionary<string, (int health, int amount)> potions = new Dictionary<string, (int health, int amount)>();
 
         // Methods
-        public void AddWeapon(string item, int attack)
+        public void AddWeapon(string item, int attack, int amount = 0)
         {
-            weapons.Add(item, (attack, 0));
+            weapons.Add(item, (attack, amount));
         }
 
-        public void AddPotion(string item, int health)
+        public void AddPotion(string item, int health, int amount = 0)
         {
-            potions.Add(item, (health, 0));
+            potions.Add(item, (health, amount));
         }
 
         public int HasWeapon(string item)

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\skope\\OneDrive - Smíchovská střední průmyslová škola a gymnázium\\Dokumenty\\C# projekt\\rpgSurvival\\rpgSurvival.csproj": {}
+    "C:\\Users\\Vláďa\\OneDrive - Smíchovská střední průmyslová škola a gymnázium\\Dokumenty\\C# projekt\\rpgSurvival\\rpgSurvival.csproj": {}
   },
   "projects": {
-    "C:\\Users\\skope\\OneDrive - Smíchovská střední průmyslová škola a gymnázium\\Dokumenty\\C# projekt\\rpgSurvival\\rpgSurvival.csproj": {
+    "C:\\Users\\Vláďa\\OneDrive - Smíchovská střední průmyslová škola a gymnázium\\Dokumenty\\C# projekt\\rpgSurvival\\rpgSurvival.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\skope\\OneDrive - Smíchovská střední průmyslová škola a gymnázium\\Dokumenty\\C# projekt\\rpgSurvival\\rpgSurvival.csproj",
+        "projectUniqueName": "C:\\Users\\Vláďa\\OneDrive - Smíchovská střední průmyslová škola a gymnázium\\Dokumenty\\C# projekt\\rpgSurvival\\rpgSurvival.csproj",
         "projectName": "rpgSurvival",
-        "projectPath": "C:\\Users\\skope\\OneDrive - Smíchovská střední průmyslová škola a gymnázium\\Dokumenty\\C# projekt\\rpgSurvival\\rpgSurvival.csproj",
-        "packagesPath": "C:\\Users\\skope\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\skope\\OneDrive - Smíchovská střední průmyslová škola a gymnázium\\Dokumenty\\C# projekt\\rpgSurvival\\obj\\",
+        "projectPath": "C:\\Users\\Vláďa\\OneDrive - Smíchovská střední průmyslová škola a gymnázium\\Dokumenty\\C# projekt\\rpgSurvival\\rpgSurvival.csproj",
+        "packagesPath": "C:\\Users\\Vláďa\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Vláďa\\OneDrive - Smíchovská střední průmyslová škola a gymnázium\\Dokumenty\\C# projekt\\rpgSurvival\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\skope\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Vláďa\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
