@@ -67,6 +67,13 @@ namespace rpgSurvival.game
 
             //Kontrola zdravi hrace a bosse
             bool skipBoss = false;
+            displayMenu.printText("Vyber si zbraně?", "", false);
+            string[] weaponNames = new string[playerData.invMng.weapons.Count];
+            foreach (var weapon in playerData.invMng.weapons) {
+                weaponNames[weaponNames.Length] = weapon.Key;
+            }
+            displayMenu.showMenu("", weaponNames, false, "Tuto zbraň budeš používat po celou dobu v boji a nemůžeš ji změnit.");
+            var selectedWeapon = playerData.invMng.weapons[weaponNames[displayMenu.selectedIndex]];
             while(playerData.health > 0) {
                 skipBoss = false;
                 foreach (var boss in Bosses) {
@@ -107,14 +114,14 @@ namespace rpgSurvival.game
 
                         var selectedBoss = Bosses[bossNames[displayMenu.selectedIndex]];
                         if (critical == 1) {
-                            displayMenu.printText("Kritický zásah!", "Zasáhl jsi za 10", true);
+                            displayMenu.printText("Kritický zásah!", $"Zasáhl jsi za {selectedWeapon.attack*2}", true);
 
-                            selectedBoss.health -= 10;
+                            selectedBoss.health -= selectedWeapon.attack * 2;
                             Bosses[bossNames[displayMenu.selectedIndex]] = selectedBoss;
                         } else {
-                            displayMenu.printText("", "Zasáhl jsi za 5", true);
+                            displayMenu.printText("", $"Zasáhl jsi za {selectedWeapon.attack}", true);
 
-                            selectedBoss.health -= 5;
+                            selectedBoss.health -= selectedWeapon.attack;
                             Bosses[bossNames[displayMenu.selectedIndex]] = selectedBoss;
                         }
                         break;

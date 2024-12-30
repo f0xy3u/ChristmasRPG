@@ -7,11 +7,10 @@ namespace rpgSurvival
 {
     public class player {
         public InventoryManager invMng = new InventoryManager();
-        
         public string name;
         public int health;
         public const int maxHealth = 100;
-        public int coins;
+        public int coins = 50;
         public int[] fightDoneIds = new int[10];
     }
     class Program
@@ -19,28 +18,34 @@ namespace rpgSurvival
         static void Main(string[] args)
         {
             string playerName;
-            bool loadGame = false;
+            bool loadGame = false; //used in startUp
+            bool gameStarted = false; //used in game loop
             player playerData = new player();
             SaveManager saveMng = new SaveManager();
             BossList bossList = new BossList();
             FightList fightList = new FightList();
             DisplayMenu displayMenu = new DisplayMenu();
             fightSystem fightSystem = new fightSystem();    
+            Random random = new Random();
+            List<string> weaponInStock = new List<string>();
+            List<string> potionInStock = new List<string>();
 
-            void loadSetUpMenu() {
+            void SetUpMenu() {
                 //First menu, printed on start and on exit
-                displayMenu.showMenu("Hlavní menu", new string[] { "Nová hra", "Načíst hru", "Uložit hru", "Konec" }, true, "cusky brosky");
+                displayMenu.showMenu("Hlavní menu", new string[] { "Nová hra", "Načíst hru", "Uložit hru", "Konec" }, true);
                 string choice = displayMenu.selectedIndex.ToString();
                 switch(choice){
                     case "0":
                         createNewGame();
+                        mainMenu();
                         break;
                     case "1":
-                        saveMng.loadSavedGame(ref playerData.name, ref playerData.health, ref playerData.coins,ref playerData.invMng.weapons,ref playerData.invMng.potions, ref playerData.fightDoneIds);
+                        saveMng.loadSavedGame(ref playerData);
                         loadGame = true;
+                        mainMenu();
                         break;
                     case "2":
-                        saveMng.saveGame(playerData.name, playerData.health, playerData.coins, playerData.invMng.weapons, playerData.invMng.potions, playerData.fightDoneIds);
+                        saveMng.saveGame(playerData);
                         break;
                     case "3":
                         Environment.Exit(0);
@@ -51,13 +56,130 @@ namespace rpgSurvival
                 }
             }
 
+            void mainMenu() {
+                displayMenu.showMenu("Hlavní menu", new string[] { "Boj", "Obchod", "Inventář", "Uložit hru", "Konec" }, false, "Vítej v menu");
+                int choice = displayMenu.selectedIndex;
+                switch(choice) {
+                    case 0:
+                        //starts fight based on playerData.fightDoneIds
+                        return;
+                    case 1:
+                        shop();
+                        return;
+                    case 2:
+                        //inventory
+                        return;
+                    case 3:
+                        saveMng.saveGame(playerData);
+                        return;
+                    case 4:
+                        Environment.Exit(0);
+                        return;
+                }
+            }
+
+            void shop() {
+                displayMenu.showMenu("Obchod", new string[] { "Zbraně", "Lektvary", "Zpět" }, false, "Vítej v obchodě, máš " + playerData.coins + " mincí.");
+                int choice = displayMenu.selectedIndex;
+                bool stocks = false;
+                switch(choice) {
+                    case 0:
+                        stocks = false;
+                        if (weaponInStock.Count == 0) {
+                            foreach (var weapon in playerData.invMng.weapons) {
+                                int chance = random.Next(0, 3);
+                                if (chance == 1) {
+                                    displayMenu.printText(weapon.Key, $"Cena: {weapon.Value.price}" + " mincí", false, true);
+                                    weaponInStock.Add(weapon.Key);
+                                    stocks = true;
+                                }
+                            }
+                        } else {
+                            foreach (var weapon in weaponInStock) {
+                                displayMenu.printText(weapon, $"Cena: {playerData.invMng.weapons[weapon].price}" + " mincí", false, true);
+                            }
+                            stocks = true;
+                        }
+                        if (stocks == false) {
+                            displayMenu.printText("", "V obchodě není nic k dostání.", false, true);
+                            return;
+                        }
+                        Console.ReadKey();
+                        displayMenu.showMenu("Chceš si něco koupit?", new string[] { "Ano", "Ne" }, false);
+                        switch (displayMenu.selectedIndex) {
+                            case 0:
+                                displayMenu.showMenu("Vyber si zbraň", weaponInStock.ToArray());
+                                string selectedWeapon = weaponInStock.ToArray()[displayMenu.selectedIndex];
+                                if (playerData.coins >= playerData.invMng.weapons[selectedWeapon].price) {
+                                    playerData.invMng.weapons[selectedWeapon] = (playerData.invMng.weapons[selectedWeapon].attack, playerData.invMng.weapons[selectedWeapon].amount + 1, playerData.invMng.weapons[selectedWeapon].price);
+                                    playerData.coins -= playerData.invMng.weapons[selectedWeapon].price;
+                                    displayMenu.printText("", "Zbraň zakoupena.", false, true);
+                                } else {
+                                    displayMenu.printText("", "Nemáš dostatek mincí.", false, true);
+                                }
+                                shop();
+                                return;
+                            case 1:
+                                shop();
+                                return;
+                        }
+                        return;
+                    case 1:
+                        stocks = false;
+                        if (potionInStock.Count == 0) {
+                            foreach (var potion in playerData.invMng.potions) {
+                                int chance = random.Next(0, 3);
+                                if (chance == 1) {
+                                    displayMenu.printText(potion.Key, $"Cena: {potion.Value.price}" + potion.Value.amount + " mincí", false, true);
+                                    potionInStock.Add(potion.Key);
+                                    stocks = true;
+                                }
+                            }
+                        } else {
+                            foreach (var potion in potionInStock) {
+                                displayMenu.printText(potion, $"Cena: {playerData.invMng.weapons[potion].price}" + " mincí", false, true);
+                            }
+                            stocks = true;
+                        }
+                        if (stocks == false) {
+                            displayMenu.printText("", "V obchodě není nic k dostání.", false, true);
+                            return;
+                        }
+                        Console.ReadKey();
+                        displayMenu.showMenu("Chceš si něco koupit?", new string[] { "Ano", "Ne" }, false);
+                        switch (displayMenu.selectedIndex) {
+                            case 0:
+                                displayMenu.showMenu("Vyber si zbraň", potionInStock.ToArray());
+                                string selectedWeapon = potionInStock.ToArray()[displayMenu.selectedIndex];
+                                if (playerData.coins >= playerData.invMng.weapons[selectedWeapon].price) {
+                                    playerData.invMng.weapons[selectedWeapon] = (playerData.invMng.weapons[selectedWeapon].attack, playerData.invMng.weapons[selectedWeapon].amount + 1, playerData.invMng.weapons[selectedWeapon].price);
+                                    playerData.coins -= playerData.invMng.weapons[selectedWeapon].price;
+                                    displayMenu.printText("", "Zbraň zakoupena.", false, true);
+                                } else {
+                                    displayMenu.printText("", "Nemáš dostatek mincí.", false, true);
+                                }
+                                shop();
+                                return;
+                            case 1:
+                                shop();
+                                return;
+                        }
+                        return;
+                    case 2:
+                        mainMenu();
+                        return;
+                }
+            }
+
 
             //Game loop
             while (true) {
-                loadSetUpMenu();
-                startUp();
-                displayMenu.printText("", "Hra začíná!", false);
-                fightSystem.fight(fightList.fights, 0, ref playerData, bossList);
+                //GameLoader
+                if(gameStarted == false) {
+                    SetUpMenu();
+                    startUp();
+                    gameStarted = true;
+                }
                 break;
             }
 
@@ -72,16 +194,16 @@ namespace rpgSurvival
             void startUp() {
                 if(loadGame == false) {
                     //Load items in inventory
-                    playerData.invMng.AddWeapon("Jmelová dýka", 5, 1); 
-                    playerData.invMng.AddWeapon("Meč z cukrovinky", 10);
-                    playerData.invMng.AddWeapon("Slavnostní luk", 20);
-                    playerData.invMng.AddWeapon("Louskáčkový palcát", 25);
-                    playerData.invMng.AddWeapon("Sekera mrazivého obra", 35);
-                    playerData.invMng.AddWeapon("Hůlka svaté hvězdy", 50);
-                    playerData.invMng.AddPotion("Léčivý lektvar", 8, 2);
-                    playerData.invMng.AddPotion("Lektvar vánoční pohody", 12);
-                    playerData.invMng.AddPotion("Elixír vánočního ducha", 20);
-                    playerData.invMng.AddPotion("Vaječný lektvar", 35);
+                    playerData.invMng.AddWeapon("Jmelová dýka", 5, 20, 1); 
+                    playerData.invMng.AddWeapon("Meč z cukrovinky", 10, 45);
+                    playerData.invMng.AddWeapon("Slavnostní luk", 20, 55);
+                    playerData.invMng.AddWeapon("Louskáčkový palcát", 25, 70);
+                    playerData.invMng.AddWeapon("Sekera mrazivého obra", 35, 90);
+                    playerData.invMng.AddWeapon("Hůlka svaté hvězdy", 50, 100);
+                    playerData.invMng.AddPotion("Léčivý lektvar", 8, 15, 2);
+                    playerData.invMng.AddPotion("Lektvar vánoční pohody", 12, 25);
+                    playerData.invMng.AddPotion("Elixír vánočního ducha", 20, 35);
+                    playerData.invMng.AddPotion("Vaječný lektvar", 35, 45);
                 }
                     
                 //Load bosses
@@ -106,7 +228,7 @@ namespace rpgSurvival
                 fightList.fights[9] = [7];
 
                 if(loadGame == false) {
-                    saveMng.saveGame(playerData.name, playerData.health, playerData.coins, playerData.invMng.weapons, playerData.invMng.potions, playerData.fightDoneIds);
+                    saveMng.saveGame(playerData);
                 }
 
             }
