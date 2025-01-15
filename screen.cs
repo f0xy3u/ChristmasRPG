@@ -7,12 +7,7 @@ namespace rpgSurvival.display
         public int showMenu(string nadpis, string[] options, bool isNadpis = false, string description = "")
         {
             Console.CursorVisible = false;
-
-            // Automaticky nastavíme vybraný index na 0, pokud je jen jedna možnost
-            if (options.Length == 1)
-            {
-                selectedIndex = 0;
-            }
+            selectedIndex = 0;
 
             while (true)
             {
@@ -91,10 +86,9 @@ namespace rpgSurvival.display
 
                 Console.SetCursorPosition(leftPadding, Console.CursorTop);
                 Console.Write(paddedNadpis);
+                Console.WriteLine();
             }
-
             Console.ResetColor();
-            Console.WriteLine();
             Console.WriteLine(CenterText(text));
         }
 

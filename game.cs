@@ -32,16 +32,16 @@ namespace rpgSurvival.game
     {
         public int[][] fights = new int[10][]
         {
-        new int[4],
-        new int[4],
-        new int[4],
-        new int[4],
-        new int[4],
-        new int[4],
-        new int[4],
-        new int[4],
-        new int[4],
-        new int[4]
+        new int[] {1},
+        new int[] {2},
+        new int[] {1, 2},
+        new int[] {3},
+        new int[] {1, 2, 3},
+        new int[] {1, 1, 2, 3},
+        new int[] {4},
+        new int[] {2, 2, 5},
+        new int[] {6},
+        new int[] {7}
         };
     }
 
@@ -49,14 +49,12 @@ namespace rpgSurvival.game
         DisplayMenu displayMenu = new DisplayMenu();
         BossList bossSystem = new BossList();
         Random random = new Random();
-        public void fight(int[][] fights, int fightID, ref player playerData, BossList bossList) {
+        public bool fight(int[][] fights, int fightID, ref player playerData, BossList bossList) {
             int[] bossIDList = fights[fightID];
             Dictionary<string, (int id, int health, int dmg)> Bosses = new Dictionary<string, (int id, int health, int dmg)>();
 
             foreach (var bossID in bossIDList) {
-                //Load bossů
-                if (bossID == 0) continue;
-
+                //Load bossu
                 var boss = bossList.getBossByID(bossID);
                 if (boss.HasValue) {
                     Bosses.Add(boss.Value.name, (boss.Value.id, boss.Value.health, boss.Value.dmg));
@@ -67,25 +65,30 @@ namespace rpgSurvival.game
 
             //Kontrola zdravi hrace a bosse
             bool skipBoss = false;
-            displayMenu.printText("Vyber si zbraně?", "", false);
-            string[] weaponNames = new string[playerData.invMng.weapons.Count];
+            List<string> weaponNames = new List<string>();
+            int i = 0; // used only in foreach (72-75)
             foreach (var weapon in playerData.invMng.weapons) {
-                weaponNames[weaponNames.Length] = weapon.Key;
+                if (weapon.Value.amount != 0) {
+                    weaponNames.Add(weapon.Key);
+                }
+                i++;
             }
-            displayMenu.showMenu("", weaponNames, false, "Tuto zbraň budeš používat po celou dobu v boji a nemůžeš ji změnit.");
+            displayMenu.showMenu("Vyber si zbraně:", weaponNames.ToArray(), false, "Tuto zbraň budeš používat po celou dobu v boji a nemůžeš ji změnit.");
             var selectedWeapon = playerData.invMng.weapons[weaponNames[displayMenu.selectedIndex]];
-            while(playerData.health > 0) {
+              while(playerData.health > 0) {
                 skipBoss = false;
+                Console.ReadKey();
                 foreach (var boss in Bosses) {
                     if (boss.Value.health <= 0) {
                         Bosses.Remove(boss.Key);
                     }
                 }
                 if (Bosses.Count == 0) {
-                    break;
+                    Console.ReadKey();
+                    return true;
                 }
                 //Menu
-                displayMenu.showMenu($"Zápas proti {"idk"}", new string[] { "Ukázat stav","Bojovat", "Použít lektvar", "Utéct"}, true);
+                displayMenu.showMenu($"Zápas proti bossum", new string[] { "Ukázat stav","Bojovat", "Použít lektvar", "Utéct"}, true);
 
                 //Hráč
                 switch (displayMenu.selectedIndex)
@@ -105,10 +108,10 @@ namespace rpgSurvival.game
                         // Bojovat
                         int critical = random.Next(0, 5);
                         string[] bossNames = new string[Bosses.Count];
-                        int i = 0;
+                        int iB = 0; // used only in foreach (110-113)
                         foreach (var boss in Bosses) {
-                            bossNames[i] = boss.Key;
-                            i++;
+                            bossNames[iB] = boss.Key;
+                            iB++;
                         }
                         displayMenu.showMenu("Vyber si protivníka", bossNames);
 
@@ -127,11 +130,30 @@ namespace rpgSurvival.game
                         break;
                     case 2:
                         // Použít lektvar
-                        Console.WriteLine("Používám lektvar");
+                        skipBoss = true;
+                        List<string> potions = new List<string>();
+                        foreach (var potion in playerData.invMng.potions) {
+                            if (potion.Value.amount != 0) {
+                                potions.Add(potion.Key);
+                            }
+                        }
+                        if (potions.Count == 0) {
+                            displayMenu.printText("Nemáš žádné lektvary", "", true);
+                            break;
+                        }
+                        displayMenu.showMenu("Vyber si lektvar", potions.ToArray(), false);
+                        var selectedPotion = playerData.invMng.potions[potions[displayMenu.selectedIndex]];
+                        displayMenu.printText("Používáš lektvar", $"Použil jsi lektvar a získal jsi {selectedPotion.health} zdraví", true);
+                        playerData.health += selectedPotion.health;
+                        selectedPotion.amount -= 1;
+                        playerData.invMng.potions[potions[displayMenu.selectedIndex]] = selectedPotion;
                         break;
                     case 3:
                         // Utéct
-                        Console.WriteLine("Utíkám");
+                        displayMenu.showMenu("Opravdu chceš utéct?", new string[] { "Ano", "Ne" }, false);
+                        if (displayMenu.selectedIndex == 0) {
+                            return false;
+                        }
                         break;
                 }
 
@@ -146,7 +168,6 @@ namespace rpgSurvival.game
                         case 0:
                             // Bojovat
                             int randomVal = random.Next(8, 12);
-                            Console.WriteLine(randomVal);
                             int damage = bossVal.Value.dmg * randomVal / 10;
                             displayMenu.printText($"{bossVal.Key} útočí.", $"{bossVal.Key} ti ubral {damage}", false);
                             playerData.health -= damage;
@@ -159,6 +180,10 @@ namespace rpgSurvival.game
                 }
                 Console.ReadKey();
             }
+            if (playerData.health <= 0) {
+                return false;
+            }
+            return true;
         }
     }
 }

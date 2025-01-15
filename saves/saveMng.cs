@@ -27,11 +27,18 @@ namespace rpgSurvival.saveMng
         }
 
         public void loadSavedGame(ref player playerData) {
-            displayMenu.printText("Načíst save", "Jak se jmenuje save?");
-            string playerName = Console.ReadLine();
-            if (File.Exists(path + playerName + ".rpg")) {
+            displayMenu.printText("Načíst save", "");
+            
+            string[] saves = Directory.GetFiles(path, "*.rpg");
+            displayMenu.showMenu("Vyber save", saves, false);
+            string[] playerNameTemp = saves[displayMenu.selectedIndex].Split('.');
+            string playerName = playerNameTemp[1];
+            playerName = playerName.Remove(0, 7);
+            string file = $"{saves[displayMenu.selectedIndex]}";
+
+            if (File.Exists(file)) {
                 displayMenu.printText("", "Načítám hru...", false);
-                string[] lines = File.ReadAllLines(path + playerName + ".rpg");
+                string[] lines = File.ReadAllLines(file);
                 playerData.name = playerName;
                 playerData.health = Convert.ToInt32(lines[0]);
                 playerData.coins = Convert.ToInt32(lines[1]);
