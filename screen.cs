@@ -1,9 +1,17 @@
 using System;
 namespace rpgSurvival.display
 {
+    //Třída pro zobrazování menu a textů v konzoli
     class DisplayMenu
     {
         public int selectedIndex = 0;
+
+        //Zobrazí menu s možnostmi výběru
+        //Parametry:
+        //nadpis - text v hlavičce menu
+        //options - pole možností výběru
+        //isNadpis - určuje formát nadpisu (true = bílý text na červeném pozadí)
+        //description - dodatečný popis pod možnostmi
         public int showMenu(string nadpis, string[] options, bool isNadpis = false, string description = "")
         {
             Console.CursorVisible = false;
@@ -66,6 +74,12 @@ namespace rpgSurvival.display
             }
         }
 
+        //Vytiskne text do konzole
+        //Parametry:
+        //nadpis - text v hlavičce
+        //text - hlavní text k zobrazení
+        //clear - vymaže konzoli před zobrazením
+        //isNadpis - určuje formát nadpisu (true = bílý text na červeném pozadí)
         public void printText(string nadpis, string text, bool clear = true, bool isNadpis = false)
         {
             if (clear){
@@ -92,6 +106,8 @@ namespace rpgSurvival.display
             Console.WriteLine(CenterText(text));
         }
 
+        //Vycentruje text na střed konzole
+        //Vrací text s odpovídajícím počtem mezer na začátku
         private static string CenterText(string text)
         {
             int windowWidth = Console.WindowWidth;

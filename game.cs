@@ -9,11 +9,13 @@ namespace rpgSurvival.game
     {
         public Dictionary<string, (int id, int health, int dmg)> Bosses = new Dictionary<string, (int id, int health, int dmg)>();
 
+        //Vytvoří bosse, použité při inicializaci
         public void AddBoss(string boss,int id, int health, int dmg)
         {
             Bosses.Add(boss, (id, health, dmg));
         }
 
+        //Vrátí bosse podle ID
         public (string name, int id, int health, int dmg)? getBossByID(int id)
         {
             foreach (var boss in Bosses)
@@ -53,6 +55,7 @@ namespace rpgSurvival.game
             int[] bossIDList = fights[fightID];
             Dictionary<string, (int id, int health, int dmg)> Bosses = new Dictionary<string, (int id, int health, int dmg)>();
 
+            //Načtení bosse
             foreach (var bossID in bossIDList) {
                 //Load bossu
                 var boss = bossList.getBossByID(bossID);
@@ -63,10 +66,10 @@ namespace rpgSurvival.game
                 }
             }
 
-            //Kontrola zdravi hrace a bosse
+            //Načtení a výběr zbraně
             bool skipBoss = false;
             List<string> weaponNames = new List<string>();
-            int i = 0; // used only in foreach (72-75)
+            int i = 0; // použito pouze ve foreach níže
             foreach (var weapon in playerData.invMng.weapons) {
                 if (weapon.Value.amount != 0) {
                     weaponNames.Add(weapon.Key);
@@ -75,7 +78,9 @@ namespace rpgSurvival.game
             }
             displayMenu.showMenu("Vyber si zbraně:", weaponNames.ToArray(), false, "Tuto zbraň budeš používat po celou dobu v boji a nemůžeš ji změnit.");
             var selectedWeapon = playerData.invMng.weapons[weaponNames[displayMenu.selectedIndex]];
-              while(playerData.health > 0) {
+
+            // Začátek loopu pro boj, loop běží když má hráč zdraví a zároveň ještě nějaký boss naživu
+            while(playerData.health > 0) {
                 skipBoss = false;
                 Console.ReadKey();
                 foreach (var boss in Bosses) {
@@ -106,9 +111,15 @@ namespace rpgSurvival.game
                         break;
                     case 1:
                         // Bojovat
+                        /*
+                        Proměnné:
+                        Critical - šance na kritický zásah (20%)
+                        BossNames - pole jmen bosů
+                        selectedBoss - vybraný boss, na kterého se bude útočit
+                        */
                         int critical = random.Next(0, 5);
                         string[] bossNames = new string[Bosses.Count];
-                        int iB = 0; // used only in foreach (110-113)
+                        int iB = 0; // použito pouze ve foreach níže
                         foreach (var boss in Bosses) {
                             bossNames[iB] = boss.Key;
                             iB++;
@@ -116,6 +127,7 @@ namespace rpgSurvival.game
                         displayMenu.showMenu("Vyber si protivníka", bossNames);
 
                         var selectedBoss = Bosses[bossNames[displayMenu.selectedIndex]];
+                        // Zásah bosse
                         if (critical == 1) {
                             displayMenu.printText("Kritický zásah!", $"Zasáhl jsi za {selectedWeapon.attack*2}", true);
 
@@ -131,6 +143,7 @@ namespace rpgSurvival.game
                     case 2:
                         // Použít lektvar
                         skipBoss = true;
+                        //Uloží lektvary v inventáři
                         List<string> potions = new List<string>();
                         foreach (var potion in playerData.invMng.potions) {
                             if (potion.Value.amount != 0) {
@@ -141,6 +154,7 @@ namespace rpgSurvival.game
                             displayMenu.printText("Nemáš žádné lektvary", "", true);
                             break;
                         }
+                        //Vybrání lektvaru a přidání zdraví dle lektvaru
                         displayMenu.showMenu("Vyber si lektvar", potions.ToArray(), false);
                         var selectedPotion = playerData.invMng.potions[potions[displayMenu.selectedIndex]];
                         displayMenu.printText("Používáš lektvar", $"Použil jsi lektvar a získal jsi {selectedPotion.health} zdraví", true);
@@ -157,12 +171,19 @@ namespace rpgSurvival.game
                         break;
                 }
 
+                //Kontrola, jestli nebyl použit lektvar
                 if (skipBoss) {
                     continue;
                 }
                 //Boss
                 foreach(var bossVal in Bosses) {
-                    int bossAction = random.Next(0, 2);
+                    /*
+                    Proměnné:
+                    bossAction - náhodná akce bosse (trefa, netrefa)
+                    randomVal - náhodná hodnota pro výpočet útoku
+                    damage - výsledný útok bosse
+                    */
+                    int bossAction = random.Next(0, 1);
                     switch (bossAction)
                     {
                         case 0:
@@ -180,6 +201,7 @@ namespace rpgSurvival.game
                 }
                 Console.ReadKey();
             }
+            //Kontrola životů hráče
             if (playerData.health <= 0) {
                 return false;
             }

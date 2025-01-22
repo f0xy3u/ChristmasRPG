@@ -5,6 +5,7 @@ using rpgSurvival.display;
 
 namespace rpgSurvival
 {
+    // Třída reprezentující hráče
     public class player {
         public InventoryManager invMng = new InventoryManager();
         public string name;
@@ -13,13 +14,15 @@ namespace rpgSurvival
         public int coins = 30;
         public int[] fightDoneIds = new int[10];
     }
+
     class Program
     {
         static void Main(string[] args)
         {
+            // Proměnné pro uchování stavu hry
             string playerName;
-            bool loadGame = false; //used in startUp
-            bool gameStarted = false; //used in game loop
+            bool loadGame = false; // Používá se při startu hry
+            bool gameStarted = false; // Používá se v herní smyčce
             player playerData = new player();
             SaveManager saveMng = new SaveManager();
             BossList bossList = new BossList();
@@ -30,8 +33,9 @@ namespace rpgSurvival
             List<string> weaponInStock = new List<string>();
             List<string> potionInStock = new List<string>();
 
+            // Nastavení hlavního menu
             void SetUpMenu() {
-                //First menu, printed on start and on exit
+                // První menu, zobrazené při startu, načtení samotné hry
                 displayMenu.showMenu("Hlavní menu", new string[] { "Nová hra", "Načíst hru", "Konec" }, true);
                 string choice = displayMenu.selectedIndex.ToString();
                 switch(choice){
@@ -51,6 +55,7 @@ namespace rpgSurvival
                 }
             }
 
+            // Hlavní menu hry
             void mainMenu() {
                 displayMenu.showMenu("Hlavní menu", new string[] { "Boj", "Obchod", "Inventář", "Uložit hru", "Konec" }, false);
                 int choice = displayMenu.selectedIndex;
@@ -73,12 +78,20 @@ namespace rpgSurvival
                 }
             }
 
+            // Funkce pro obchodování
             void shop() {
+                /*
+                Obchod: možnost koupě zbraní, potionů, prodej obojeho
+                Ceny:
+                    Koupě zbraní a lektvarů: dle ceny při deklaraci
+                    Prodej zbraní a lektvarů: 2/3 ceny
+                */
                 displayMenu.showMenu("Obchod", new string[] { "Zbraně", "Lektvary", "Prodej","Zpět" }, false, "Vítej v obchodě, máš " + playerData.coins + " mincí.");
                 int choice = displayMenu.selectedIndex;
                 bool stocks = false;
                 switch(choice) {
                     case 0:
+                        // Koupě zbraní
                         stocks = false;
                         if (weaponInStock.Count == 0) {
                             foreach (var weapon in playerData.invMng.weapons) {
@@ -121,6 +134,7 @@ namespace rpgSurvival
                         }
                         return;
                     case 1:
+                        // Koupě lektvarů
                         stocks = false;
                         if (potionInStock.Count == 0) {
                             foreach (var potion in playerData.invMng.potions) {
@@ -162,6 +176,7 @@ namespace rpgSurvival
                         }
                         return;
                     case 2:
+                        // Prodej
                         List<string> items = new List<string>();
                         foreach (var weapon in playerData.invMng.weapons) {
                             if (weapon.Value.amount > 0) {
@@ -201,6 +216,7 @@ namespace rpgSurvival
                 }
             }
 
+            // Zobrazení inventáře
             void showInventory() {
                 displayMenu.printText("Inventář", "", true, true);
                 displayMenu.printText("Tvé statistiky:", "", false, true);
@@ -224,6 +240,7 @@ namespace rpgSurvival
                 mainMenu();
             }
 
+            // Zahájení boje
             void startFight() {
                 bool fightStarted = false;
                 bool win = false;
@@ -237,9 +254,10 @@ namespace rpgSurvival
                     }
                     i++;
                 }
+                //Kontroluje stav boje
                 if (win == true) {
                     displayMenu.printText("", "Vyhrál jsi, gratuluji.", false, true);
-                    //Pridani penez po vyhre (sum vsech ID*10)
+                    // Přidání peněz po výhře (součet všech ID * 10)
                     Console.WriteLine(fightList.fights[fightID].Sum() * 10);
                     playerData.coins += fightList.fights[fightID].Sum() * 10;
                     Console.ReadKey();
@@ -256,9 +274,9 @@ namespace rpgSurvival
                 }
             }
 
-            //Game loop
+            // Game loop
             while (true) {
-                //GameLoader
+                // Načítání hry
                 if(gameStarted == false) {
                     SetUpMenu();
                     startUp();
@@ -268,7 +286,8 @@ namespace rpgSurvival
                 break;
             }
 
-            //Methods used in game
+            // Metody používané ve hře
+            // Vytvoření nové hry
             void createNewGame() {
                 displayMenu.printText("Tvoření postavy", "Jak se chces jmenovat?");
                 playerName = Console.ReadLine();
@@ -276,9 +295,10 @@ namespace rpgSurvival
                 playerData.health = 100;
             }
 
+            // Načtení předmětů do inventáře
             void startUp() {
                 if(loadGame == false) {
-                    //Load items in inventory
+                    // Načtení inventáře v případě nové hry
                     playerData.invMng.AddWeapon("Jmelová dýka", 5, 20, 1); 
                     playerData.invMng.AddWeapon("Meč z cukrovinky", 10, 45);
                     playerData.invMng.AddWeapon("Slavnostní luk", 20, 55);
@@ -291,7 +311,7 @@ namespace rpgSurvival
                     playerData.invMng.AddPotion("Vaječný lektvar", 35, 45);
                 }
                     
-                //Load bosses
+                // Načtení bossů
                 bossList.AddBoss("Vánoční skřítek", 1, 30, 8);
                 bossList.AddBoss("Vánoční skřet", 2, 50, 10);
                 bossList.AddBoss("Strážce vánočního města", 3, 80, 20);
